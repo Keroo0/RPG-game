@@ -1,0 +1,79 @@
+[gd_scene load_steps=8 format=3 uid="uid://dspfj4ej70ube"]
+
+[ext_resource type="Texture2D" uid="uid://bd1xbyl2m5hca" path="res://arts/sprites/objects/healthbarUnder.png" id="1_5hwma"]
+[ext_resource type="Script" uid="uid://cf3ualli1u1ra" path="res://script/status_game.gd" id="1_r1nq8"]
+[ext_resource type="Texture2D" uid="uid://uj31enb83v4l" path="res://arts/sprites/objects/healthbarProgress.png" id="2_guihc"]
+[ext_resource type="Script" uid="uid://beefcu2bnl5ko" path="res://script/texture_progress_bar.gd" id="3_r1nq8"]
+[ext_resource type="Texture2D" uid="uid://r8a3nqjgcov8" path="res://arts/sprites/objects/profile.png" id="4_guihc"]
+[ext_resource type="Texture2D" uid="uid://d1s8rnscw2o8h" path="res://arts/chara/processed_image.png" id="6_h2rvt"]
+[ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="7_kq71a"]
+
+[node name="StatusGame" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_r1nq8")
+
+[node name="TextureProgressBar" type="TextureProgressBar" parent="."]
+layout_mode = 1
+offset_left = 25.000002
+offset_top = 10.0
+offset_right = 141.0
+offset_bottom = 26.0
+scale = Vector2(1.5914726, 1.57701)
+nine_patch_stretch = true
+stretch_margin_left = 4
+stretch_margin_top = 4
+stretch_margin_right = 4
+stretch_margin_bottom = 4
+texture_under = ExtResource("1_5hwma")
+texture_progress = ExtResource("2_guihc")
+script = ExtResource("3_r1nq8")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1024.0
+offset_bottom = 1024.0
+scale = Vector2(0.042912208, 0.042912208)
+texture = ExtResource("4_guihc")
+
+[node name="Pause" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -13.0
+offset_top = 10.0
+offset_right = 13.0
+offset_bottom = 41.0
+grow_horizontal = 2
+scale = Vector2(0.87071544, 0.91504717)
+theme_override_font_sizes/font_size = 30
+text = "||"
+
+[node name="ConCounter" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 40.0
+grow_horizontal = 0
+scale = Vector2(0.97288907, 1.0313698)
+
+[node name="IconSlime" type="TextureRect" parent="ConCounter"]
+layout_mode = 2
+texture = ExtResource("6_h2rvt")
+expand_mode = 3
+flip_h = true
+
+[node name="Counter" type="Label" parent="ConCounter"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("7_kq71a")
+theme_override_font_sizes/font_size = 40
+text = "0/0"
+
+[connection signal="pressed" from="Pause" to="." method="_on_pause_pressed"]

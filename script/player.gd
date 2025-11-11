@@ -1,64 +1,69 @@
 extends CharacterBody2D
 
-const  kecepatan:int = 150
-var arah:String= "diam"
+const KECEPATAN: int = 100
+@onready var animasi: AnimatedSprite2D = $AnimatedSprite2D
+
+var arah_terakhir := Vector2(0, 1) # hadap bawah
+var sedang_menyerang := false
+
+func _ready() -> void:
+	# Pastikan animasi serangan tidak loop (wajib agar animation_finished bisa terpanggil)
+	for nama in ["hit_depan", "hit_belakang", "hit_samping"]:
+		if animasi.sprite_frames.has_animation(nama):
+			animasi.sprite_frames.set_animation_loop(nama, false)
+
+	# Pastikan sinyal terhubung (hindari masalah nama fungsi/case-sensitive)
+	if not animasi.is_connected("animation_finished", Callable(self, "_on_animated_sprite_2d_animation_finished")):
+		animasi.animation_finished.connect(_on_animated_sprite_2d_animation_finished)
 
 func _physics_process(delta: float) -> void:
-	gerak(delta)
+	if sedang_menyerang:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
-func gerak(delta):
-	if Input.is_action_pressed("ui_right"):
-		velocity.x = kecepatan 
-		velocity.y = 0
-		arah = "kanan"
-		arah_player("diam")
-	elif Input.is_action_pressed("ui_left"):
-		velocity.x = -kecepatan 
-		velocity.y = 0
-		arah = "kiri"
-		arah_player(true)
-	elif Input.is_action_pressed("ui_up"):
-		velocity.x = 0
-		velocity.y = -kecepatan
-		arah = "atas"
-		arah_player(true)
-	elif Input.is_action_pressed("ui_down"):
-		velocity.x = 0
-		velocity.y = kecepatan
-		arah = "bawah"
-		arah_player(true)
+	var input_vektor := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	velocity = input_vektor.normalized() * KECEPATAN
+	move_and_slide()
+	perbarui_animasi_gerak(input_vektor)
+
+func _unhandled_input(event):
+	if event.is_action_pressed("ui_accept") and not sedang_menyerang:
+		gebuk()
+
+func perbarui_animasi_gerak(input_vektor: Vector2) -> void:
+	if input_vektor != Vector2.ZERO:
+		arah_terakhir = input_vektor
+		if not sedang_menyerang:
+			animasi.play()
 	else:
-		arah_player(false)
-		velocity.x = 0
-		velocity.y = 0
-	move_and_slide();
-	
-func arah_player(move):	
-	var arah_sekarang = arah
-	var animasi = $AnimatedSprite2D
-	if arah_sekarang == "kanan":
-		animasi.flip_h = false
-		if move :
-			animasi.play("jalan_kanan")
-		else:
-			animasi.play("diam")
-	elif arah_sekarang == "kiri":
-		animasi.flip_h = true
-		if move :
-			animasi.play("jalan_kanan")
-		else:
-			animasi.play("diam")
-	elif arah_sekarang == "atas":
-		animasi.flip_h = false
-		if move :
-			animasi.play("jalan_atas")
-		else:
-			animasi.play("diam")
-	elif arah_sekarang == "bawah":
-		animasi.flip_h = false
-		if move :
-			animasi.play("jalan_bawah")
-		else:
-			animasi.play("diam")
-			
-	
+		if not sedang_menyerang:
+			animasi.stop()
+
+	# Pilih animasi gerak
+	if arah_terakhir.y > 0.5:
+		animasi.animation = "jalan_bawah"
+	elif arah_terakhir.y < -0.5:
+		animasi.animation = "jalan_atas"
+	elif abs(arah_terakhir.x) > 0.5:
+		animasi.animation = "jalan_kanan"
+
+	# Flip untuk kiri/kanan
+	animasi.flip_h = arah_terakhir.x < 0
+
+func gebuk() -> void:
+	sedang_menyerang = true
+	# Mulai dari frame 0 supaya tegas satu ayunan
+	animasi.frame = 0
+
+	if arah_terakhir.y > 0.5:
+		animasi.play("hit_depan")
+	elif arah_terakhir.y < -0.5:
+		animasi.play("hit_belakang")
+	else:
+		animasi.play("hit_samping")
+
+func _on_animated_sprite_2d_animation_finished() -> void:
+	# Hanya reset bila yang selesai adalah animasi serangan
+	if animasi.animation.begins_with("hit_"):
+		sedang_menyerang = false

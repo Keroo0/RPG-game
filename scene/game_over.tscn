@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://cgtp5ccc38n5n"]
+
+[ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="1_8uq5u"]
+[ext_resource type="Script" uid="uid://bwhm55vv74qn2" path="res://script/game_over.gd" id="1_mxr41"]
+
+[node name="GameOver" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_mxr41")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5372549)
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = -165.0
+offset_right = 160.0
+offset_bottom = -75.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.92501533, 0.0028347808, 0.14029199, 1)
+theme_override_colors/font_shadow_color = Color(1, 1, 1, 0)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1_8uq5u")
+theme_override_font_sizes/font_size = 89
+text = "GAMEOVER"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -101.75
+offset_top = -33.2034
+offset_right = 101.75
+offset_bottom = 33.2034
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ulangi" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_8uq5u")
+theme_override_font_sizes/font_size = 43
+text = "Ulangi"
+
+[node name="keluar" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_8uq5u")
+theme_override_font_sizes/font_size = 37
+text = "Keluar"
+
+[connection signal="pressed" from="VBoxContainer/ulangi" to="." method="_on_ulangi_pressed"]
+[connection signal="pressed" from="VBoxContainer/keluar" to="." method="_on_keluar_pressed"]

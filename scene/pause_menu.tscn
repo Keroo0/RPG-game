@@ -1,0 +1,57 @@
+[gd_scene load_steps=3 format=3 uid="uid://q5lw8i1us3no"]
+
+[ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="1_grdc7"]
+[ext_resource type="Script" uid="uid://c23m0icyc88em" path="res://script/pause_menu.gd" id="1_me6vf"]
+
+[node name="PauseMenu" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_me6vf")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -115.0
+offset_top = -115.0
+offset_right = 115.0
+offset_bottom = 201.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+color = Color(0.103743516, 0.10374353, 0.103743516, 0.5882353)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 461.0
+offset_top = 209.0
+offset_right = -461.0
+offset_bottom = -123.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="pause" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="label" type="Label" parent="MarginContainer/pause"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_grdc7")
+theme_override_font_sizes/font_size = 69
+text = "PAUSE"
+
+[node name="Lanjut" type="Button" parent="MarginContainer/pause"]
+layout_mode = 2
+text = "Lanjutkan"
+
+[node name="MainMenu" type="Button" parent="MarginContainer/pause"]
+layout_mode = 2
+text = "Keluar"
+
+[connection signal="pressed" from="MarginContainer/pause/Lanjut" to="." method="_on_lanjut_pressed"]
+[connection signal="pressed" from="MarginContainer/pause/MainMenu" to="." method="_on_main_menu_pressed"]

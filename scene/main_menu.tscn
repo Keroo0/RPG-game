@@ -1,0 +1,83 @@
+[gd_scene load_steps=8 format=3 uid="uid://ob5i0iryawxp"]
+
+[ext_resource type="Texture2D" uid="uid://c2d0rsghq0x6k" path="res://arts/sprites/particles/bg.png" id="1_3er1b"]
+[ext_resource type="Script" uid="uid://bcytp7vo5hrjt" path="res://script/main_menu.gd" id="1_sepwh"]
+[ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="2_2fwvj"]
+[ext_resource type="FontFile" uid="uid://clbfwu2upnrli" path="res://arts/font/ByteBounce.ttf" id="3_0iwki"]
+[ext_resource type="Texture2D" uid="uid://r8a3nqjgcov8" path="res://arts/sprites/objects/profile.png" id="3_sepwh"]
+
+[sub_resource type="Theme" id="Theme_14wem"]
+
+[sub_resource type="Theme" id="Theme_3er1b"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sepwh")
+
+[node name="background" type="TextureRect" parent="."]
+self_modulate = Color(0.52114034, 0.52114064, 0.5211405, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_14wem")
+texture = ExtResource("1_3er1b")
+
+[node name="character" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 472.00003
+offset_top = 65.0
+offset_right = 1496.0
+offset_bottom = 1089.0
+scale = Vector2(0.17527957, 0.17527957)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+size_flags_stretch_ratio = 0.0
+texture = ExtResource("3_sepwh")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="wadahTombol" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Judul" type="Label" parent="CenterContainer/wadahTombol"]
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_2fwvj")
+theme_override_font_sizes/font_size = 100
+text = "Nolongin Tuan Puteri"
+
+[node name="Mulai" type="Button" parent="CenterContainer/wadahTombol"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme = SubResource("Theme_3er1b")
+theme_override_fonts/font = ExtResource("3_0iwki")
+theme_override_font_sizes/font_size = 50
+text = "MULAI"
+
+[node name="Keluar" type="Button" parent="CenterContainer/wadahTombol"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+theme = SubResource("Theme_3er1b")
+theme_override_fonts/font = ExtResource("3_0iwki")
+theme_override_font_sizes/font_size = 50
+text = "KELUAR
+"
+
+[connection signal="pressed" from="CenterContainer/wadahTombol/Mulai" to="." method="_on_mulai_pressed"]
+[connection signal="pressed" from="CenterContainer/wadahTombol/Keluar" to="." method="_on_keluar_pressed"]

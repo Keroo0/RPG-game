@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bai7yc13057ut"]
+
+[node name="Lvl2" type="Node2D"]
+
+[node name="Tanah" type="TileMapLayer" parent="."]
+
+[node name="Objek" type="TileMapLayer" parent="."]
