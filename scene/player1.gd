@@ -2,11 +2,16 @@ extends CharacterBody2D
 
 class_name Player
 
-
 @export var speed:int = 100
 var current_dir = "down"
 @export var max_health:int = 500
 @onready var current_health:int = max_health
+
+# --- 1. TAMBAHKAN ATRIBUT INI ---
+# Ini adalah damage yang akan dibaca oleh skrip musuh
+@export var attack_damage: int = 20
+# ---------------------------------
+
 var life = true
 var in_attack_range = false
 var cooldown_attack = true
@@ -16,30 +21,31 @@ var attacking = false
 @onready var deal_attack: Timer = $deal_attack
 @onready var death: Timer = $death
 signal healthChange(current_health)
-@export var knockbackPower = 50       
-var is_in_knockback: bool = false
-	
+@export var knockbackPower = 50
 
-
+@onready var attack_hitbox_shape: CollisionShape2D = $AttackHitBox/areaAttack
 
 func _physics_process(delta: float) -> void:
-	if is_in_knockback:
+	# Jika sedang menyerang, hentikan gerakan
+	if attacking:
+		velocity = Vector2.ZERO
 		move_and_slide()
-		return # <-- Hentikan gerakan player
-	playerMovement(delta)
+	
+	# Hanya izinkan gerakan jika TIDAK menyerang
+	if not attacking:
+		playerMovement(delta)
+		
 	attack()
 	
-	# Tambahkan 'and life == true'
 	if current_health <= 0 and life == true:
-		life = false # <-- 'life' menjadi 'false' di sini
+		life = false
 		anim.play("die")
-		# Kita tidak perlu lagi 'current_health = 0' karena 'life' sudah jadi 'false'
 		speed = 0
 		print("tewas")
-		death.start() # <-- Ini sekarang HANYA akan dipanggil SATU KALI
-
+		death.start()
 
 func playerMovement(delta):
+	# (Kode playerMovement Anda tidak berubah, sudah bagus)
 	if Input.is_action_pressed("ui_right"):
 		current_dir = "right"
 		play_anim(1)
@@ -67,67 +73,77 @@ func playerMovement(delta):
 	move_and_slide()
 	
 func play_anim(movement):
+	# (Kode play_anim Anda tidak berubah)
+	# JANGAN mainkan animasi 'walk'/'idle' jika sedang menyerang
+	if attacking:
+		return
+		
 	var dir = current_dir
 	if dir == "right":
 		anim.flip_h = false
 		if movement == 1:
 			anim.play("walk_side")
 		elif movement == 0:
-			if attacking == false:
-				anim.play("idle_side")
+			anim.play("idle_side")
 	if dir == "left":
 		anim.flip_h = true
 		if movement == 1:
 			anim.play("walk_side")
 		elif movement == 0:
-			if attacking == false:
-				anim.play("idle_side")
+			anim.play("idle_side")
 	if dir == "up":
 		anim.flip_h = false
 		if movement == 1:
 			anim.play("walk_back")
 		elif movement == 0:
-			if attacking == false:
-				anim.play("idle_back")
+			anim.play("idle_back")
 	if dir == "down":
 		anim.flip_h = false
 		if movement == 1:
 			anim.play("walk_front")
 		elif movement == 0:
-			if attacking == false:
-				anim.play("idle_front")
+			anim.play("idle_front")
 		
 func player():
 	pass
 
 
+# FUNGSI INI ADALAH UNTUK SAAT PLAYER DISERANG
 func _on_hitbox_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Enemy") and cooldown_attack == true:
 		enemy_attack(body)
 		in_attack_range = true	
-	
 
 
 func _on_hitbox_body_exited(body: Node2D) -> void:
 	if body.is_in_group("Enemy"):
 		in_attack_range = false
 
-		
+# FUNGSI INI DIPANGGIL SAAT PLAYER DISERANG
 func enemy_attack(attacker:Node2D):
-	#if in_attack_range and cooldown_attack == true:
-		current_health-= 20
-		cooldown_attack = false
-		cooldown.start()
-		print(current_health)
-		healthChange.emit(current_health)
-
+	
+	# --- 2. UBAH LOGIKA DAMAGE INI ---
+	# Ambil damage dari atribut si penyerang (attacker/musuh)
+	var damage_received = attacker.attack_damage
+	current_health -= damage_received # Gunakan damage dari musuh
+	# ---------------------------------
+	
+	cooldown_attack = false
+	cooldown.start()
+	print(current_health)
+	healthChange.emit(current_health)
+	
 func _on_cooldown_timeout() -> void:
 	cooldown_attack = true	
+
+# FUNGSI INI ADALAH UNTUK SAAT PLAYER MENYERANG
 func attack():
 	var dir = current_dir
-	if Input.is_action_just_pressed("attack"):
-		Global.player_is_attacking = true
+	if Input.is_action_just_pressed("attack") and not attacking:
 		attacking = true
+		attack_hitbox_shape.disabled = false
+		
+		# (Sisa kode animasi Anda)
 		if dir == "right":
 			anim.flip_h = false
 			anim.play("hit_side")
@@ -147,19 +163,12 @@ func attack():
 			
 func _on_deal_attack_timeout() -> void:
 	deal_attack.stop()
-	Global.player_is_attacking = false
 	attacking = false
-
-
+	attack_hitbox_shape.disabled = true
+	
 func _on_death_timeout() -> void:
 	print("gameover")
 	get_tree().paused = true
-	# 2. Muat scene game over
 	var game_over_scene = load("res://scene/game_over.tscn")
 	var game_over_instance = game_over_scene.instantiate()
-	# 3. Tampilkan scene game sover di atas layar
 	get_tree().get_root().add_child(game_over_instance)
-	
-func _on_knockback_finished():
-	is_in_knockback = false
-	

@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=3 uid="uid://bc8eakyri4qd2"]
+[gd_scene load_steps=58 format=3 uid="uid://bc8eakyri4qd2"]
 
 [ext_resource type="Script" uid="uid://cks858bxgsfcb" path="res://scene/player1.gd" id="1_hjaqi"]
 [ext_resource type="Texture2D" uid="uid://b6yvroqibxr68" path="res://arts/sprites/characters/player.png" id="1_xo3ru"]
@@ -417,8 +417,12 @@ animations = [{
 radius = 5.0
 height = 10.0
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_hjaqi"]
-radius = 16.03122
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fvtld"]
+radius = 8.0
+height = 24.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fvtld"]
+radius = 20.396078
 
 [node name="Player" type="CharacterBody2D" groups=["Player"]]
 y_sort_enabled = true
@@ -433,13 +437,13 @@ frame_progress = 0.7931721
 position = Vector2(0, 14)
 shape = SubResource("CapsuleShape2D_hjaqi")
 
-[node name="hitbox" type="Area2D" parent="."]
+[node name="hurt_box" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="hitbox"]
-position = Vector2(0, 8)
-shape = SubResource("CircleShape2D_hjaqi")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="hurt_box"]
+position = Vector2(3, 9)
+shape = SubResource("CapsuleShape2D_fvtld")
 
-[node name="cooldown" type="Timer" parent="hitbox"]
+[node name="cooldown" type="Timer" parent="hurt_box"]
 
 [node name="deal_attack" type="Timer" parent="."]
 
@@ -457,8 +461,16 @@ rotation_smoothing_enabled = true
 drag_horizontal_enabled = true
 drag_vertical_enabled = true
 
-[connection signal="body_entered" from="hitbox" to="." method="_on_hitbox_body_entered"]
-[connection signal="body_exited" from="hitbox" to="." method="_on_hitbox_body_exited"]
-[connection signal="timeout" from="hitbox/cooldown" to="." method="_on_cooldown_timeout"]
+[node name="AttackHitBox" type="Area2D" parent="." groups=["attack_hitbox"]]
+visible = false
+
+[node name="areaAttack" type="CollisionShape2D" parent="AttackHitBox"]
+position = Vector2(1, 8)
+shape = SubResource("CircleShape2D_fvtld")
+disabled = true
+
+[connection signal="body_entered" from="hurt_box" to="." method="_on_hitbox_body_entered"]
+[connection signal="body_exited" from="hurt_box" to="." method="_on_hitbox_body_exited"]
+[connection signal="timeout" from="hurt_box/cooldown" to="." method="_on_cooldown_timeout"]
 [connection signal="timeout" from="deal_attack" to="." method="_on_deal_attack_timeout"]
 [connection signal="timeout" from="death" to="." method="_on_death_timeout"]
