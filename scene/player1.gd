@@ -1,48 +1,44 @@
-extends CharacterBody2D
+extends Entity # <--- PERUBAHAN 1: Warisi dari Entity (Bapaknya)
 
-# --- ATRIBUT PLAYER ---
+# --- ATRIBUT PLAYER (KHUSUS PLAYER) ---
 @export var speed: int = 100
-@export var max_health: int = 500
-@export var attack_damage: int = 50 # <-- Ini yang dibaca Slime saat kena pukul
-@export var knockbackPower = 50
+# CATATAN: max_health, health, dan knockback_resistance sudah ada di Entity!
+# Jangan ditulis lagi di sini.
 
 # --- STATE VARIABLES ---
-@onready var current_health: int = max_health
 var current_dir = "down"
-var life: bool = true
 var attacking: bool = false
-var can_take_damage: bool = true 
-var is_knocked_back: bool = false # Status baru
+# CATATAN: is_dead, knockback_vector sudah ada di Entity!
 
 # --- REFERENSI NODE ---
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 @onready var deal_attack_timer: Timer = $deal_attack
 @onready var death_timer: Timer = $death
-
-# Node Serangan (Pedang)
-# Perhatikan 'Box' dengan B besar, dan 'areaAttack'
-@onready var attack_hitbox_shape: CollisionShape2D = $AttackHitBox/areaAttack
-
-# Node Pertahanan (Cooldown Jeda Kebal)
-@onready var hurtbox_cooldown: Timer = $hurt_box/cooldown 
-
-# --- SINYAL ---
-signal healthChange(current_health)
+@onready var attack_hitbox: Area2D = $AttackHitBox # Pastikan ini Area2D
+@onready var hurtbox_cooldown: Timer = $hurt_box/cooldown
 
 func _ready():
-	# 1. Matikan pedang saat mulai
-	attack_hitbox_shape.disabled = true
+	# 1. Sinkronisasi Darah dengan Global (Bank Data)
+	# Karena Entity yang pegang health, kita isi health Entity pakai data Global
+	current_health = GameManager.current_health
+	max_health = GameManager.max_health
 	
-	# 2. Pastikan timer cooldown terhubung
-	if not hurtbox_cooldown.timeout.is_connected(_on_hurtbox_cooldown_timeout):
-		hurtbox_cooldown.timeout.connect(_on_hurtbox_cooldown_timeout)
+	# 2. Sambungkan Sinyal dari BAPAK (Entity) ke fungsi lokal
+	# Saat Entity bilang "aduh sakit", Player mainkan animasi
+	on_hit.connect(_play_hurt_anim)
+	on_died.connect(_play_death_anim)
+	on_health_changed.connect(_update_global_data)
+
+	# 3. Setup awal
+	$AttackHitBox/areaAttack.disabled = true # Matikan hitbox di awal
 
 func _physics_process(delta: float) -> void:
-	if is_knocked_back:
-		move_and_slide()
-		return
-	if not life: return
+	# Panggil Logic Bapak dulu (untuk urus Knockback otomatis)
+	super._physics_process(delta) 
 	
+	if is_dead: return # Cek variabel bapak (is_dead)
+	
+	# Logic Gerakan Lama Kamu (Saya pertahankan)
 	if attacking:
 		velocity = Vector2.ZERO
 		move_and_slide()
@@ -51,7 +47,7 @@ func _physics_process(delta: float) -> void:
 		
 	attack_input()
 
-# --- GERAKAN ---
+# --- GERAKAN (KODE LAMA - DIPERTAHANKAN) ---
 func playerMovement(_delta):
 	var input_vector = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	
@@ -90,14 +86,13 @@ func play_anim(movement):
 		if movement == 1: anim.play("walk_front")
 		else: anim.play("idle_front")
 
-# --- LOGIKA SERANGAN (PLAYER -> MUSUH) ---
+# --- SERANGAN (DIPERBARUI DIKIT) ---
 func attack_input():
 	if Input.is_action_just_pressed("attack") and not attacking:
 		attacking = true
 		
-		# >>> KUNCI PENYERANGAN <<<
-		# Nyalakan Area2D ini agar bisa dideteksi oleh Hurtbox Slime
-		attack_hitbox_shape.disabled = false 
+		# Nyalakan Hitbox Manual (Karena kamu belum pakai AnimationPlayer)
+		$AttackHitBox/areaAttack.disabled = false 
 		
 		if current_dir == "right":
 			anim.flip_h = false; anim.play("hit_side")
@@ -113,50 +108,34 @@ func attack_input():
 func _on_deal_attack_timeout() -> void:
 	deal_attack_timer.stop()
 	attacking = false
-	# Matikan Area2D setelah serangan selesai
-	attack_hitbox_shape.disabled = true
+	$AttackHitBox/areaAttack.disabled = true
 
-# --- LOGIKA MENERIMA DAMAGE (MUSUH -> PLAYER) ---
-func receive_damage(dmg_amount: int, enemy_pos: Vector2 = Vector2.ZERO):
-	if not life or not can_take_damage:
-		return 
-	current_health -= dmg_amount
-	print("Player terkena pukulan! Sisa HP: ", current_health)
-	healthChange.emit(current_health)
-	if enemy_pos != Vector2.ZERO:
-		is_knocked_back = true
-		
-		# Rumus Arah: (Posisi Saya - Posisi Musuh) = Arah Menjauh
-		var knockback_dir = (global_position - enemy_pos).normalized()
-		
-		# Set kecepatan lemparan
-		velocity = knockback_dir * knockbackPower
-		
-		# Buat Timer singkat (misal 0.2 detik) untuk berhenti terpental
-		get_tree().create_timer(0.2).timeout.connect(_on_knockback_finished)
-	can_take_damage = false
-	hurtbox_cooldown.start() 
-	
-	if current_health <= 0:
-		die()
-# Fungsi kecil untuk mengembalikan kontrol
-func _on_knockback_finished():
-	is_knocked_back = false
-	velocity = Vector2.ZERO # Stop mendadak agar tidak licin
-	
-func _on_hurtbox_cooldown_timeout():
-	can_take_damage = true
+# --- UPDATE PENTING: SIGNAL & GLOBAL ---
+func _update_global_data(new_hp):
+	# Lapor ke Global Manager biar UI update
+	GameManager.current_health = new_hp
+	GameManager.health_changed.emit(new_hp)
 
-# --- SISTEM KEMATIAN ---
-func die():
-	life = false
+# --- VISUAL EFEK (Override) ---
+# Kita tidak butuh func receive_damage() lagi karena Entity sudah punya.
+# Kita cuma butuh "Efek Visual"-nya saja.
+
+func _play_hurt_anim(attacker_pos):
+	# Animasi sakit
+	# anim.play("hurt") # Kalau ada animasi hurt
+	# Flash merah atau getar layar bisa ditaruh di sini
+	print("Player: Aww sakit! (Visual Only)")
+
+func _play_death_anim():
 	anim.play("die")
-	print("Player Tewas")
+	print("Player: Mati, mainkan animasi...")
 	death_timer.start()
 
 func _on_death_timeout() -> void:
-	print("Game Over")
+	print("Game Over Logic")
+	GameManager.player_died.emit()
+	# Panggil scene Game Over di sini
 	get_tree().paused = true
-	var game_over_scene = load("res://scene/game_over.tscn") 
+	var game_over_scene = load("res://scene/game_over.tscn")
 	var game_over_instance = game_over_scene.instantiate()
 	get_tree().get_root().add_child(game_over_instance)

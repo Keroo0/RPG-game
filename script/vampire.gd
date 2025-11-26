@@ -1,240 +1,185 @@
-extends CharacterBody2D
+extends Entity # <--- WARISI DARI ENTITY
 
-signal died
+# --- CONFIG VAMPIRE (BALANCING) ---
+@export_group("Vampire AI")
+@export var speed: int = 50             # Jalan santai saat patroli
+@export var run_speed: int = 100        # Lari saat mengejar
+@export var attack_range: int = 50      # Jarak pukul (Pixel)
+@export var detect_range: int = 150     # Jarak pandang (Dikecilkan biar fair)
+@export var lifesteal_amount: int = 20  # Heal diri sendiri
+@export var attack_cooldown_time: float = 2.0 # Jeda antar serangan (Lebih lama)
 
-# --- ATRIBUT ---
-@export var speed: int = 70
-@export var health: int = 400
-@export var max_health: int = 400
-@export var attack_damage: int = 60
-@export var knockback_power: int = 200
-@export var lunge_speed: int = 350
-@export var windup_time: float = 0.3
-
-# --- NODE ---
+# --- REFERENSI ---
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_cooldown: Timer = $AttackCooldown
 @onready var death_timer: Timer = $death_timer
 @onready var patrol_timer: Timer = $PatrolTimer
-@onready var attack_area: Area2D = $AttackArea
 @onready var health_bar = $EnemyHealthBar
+@onready var weapon_collider: CollisionShape2D = $AttackArea/CollisionShape2D
 
-# --- STATUS ---
+# --- STATE ---
 var player = null
-var player_chase: bool = false
-var player_in_attack_range: bool = false
-
-var is_dead: bool = false
-var is_hurting: bool = false
-var is_attacking: bool = false
-var is_in_knockback: bool = false
-
-# --- PATROLI ---
-var facing_dir: String = "front"
-var patrol_direction: Vector2 = Vector2.ZERO
+var is_attacking: bool = false   # Sedang sibuk nyerang
 var is_patrol_walking: bool = false
+var facing_dir: String = "front"
+var patrol_direction: Vector2 = Vector2.DOWN
 
 func _ready():
-	if health_bar: health_bar.init_health(max_health)
-	$AttackArea/CollisionShape2D.disabled = false
+	# 1. Matikan pedang saat lahir
+	if weapon_collider: weapon_collider.disabled = true
 	
-	if not anim.animation_finished.is_connected(_on_animated_sprite_2d_animation_finished):
-		anim.animation_finished.connect(_on_animated_sprite_2d_animation_finished)
+	# 2. Setup Health Bar
+	if health_bar:
+		health_bar.init_health(max_health, current_health)
+		on_health_changed.connect(health_bar._on_health_updated)
 	
-	if not $HurtBox.area_entered.is_connected(_on_hurt_box_area_entered):
-		$HurtBox.area_entered.connect(_on_hurt_box_area_entered)
+	# 3. Setup Sinyal Visual
+	# Hapus koneksi lama via kode biar bersih
+	if not anim.animation_finished.is_connected(_on_anim_finished):
+		anim.animation_finished.connect(_on_anim_finished)
 		
-	patrol_timer.timeout.connect(_on_patrol_timer_timeout)
+	on_hit.connect(_play_hurt_anim)
+	on_died.connect(_play_death_anim)
+	
+	if not death_timer.timeout.is_connected(_on_death_timer_timeout):
+		death_timer.timeout.connect(_on_death_timer_timeout)
+	# 4. Mulai Patroli
+	if not patrol_timer.timeout.is_connected(_pick_new_patrol_state):
+		patrol_timer.timeout.connect(_pick_new_patrol_state)
 	_pick_new_patrol_state()
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	super._physics_process(delta) # Entity Knockback
 	if is_dead: return
-	# PRIORITAS 1: KNOCKBACK (Paling Kuat)
-	# Jika kena pukul keras, harus terpental dulu, batalkan yang lain
-	if is_in_knockback: 
-		move_and_slide()
-		return
-
-	# PRIORITAS 2: MENYERANG (Super Armor dari Stun biasa, tapi kalah sama Knockback)
+	
+	# JANGAN BERGERAK KALAU SEDANG MENYERANG (KUNCI ANIMASI)
 	if is_attacking:
+		velocity = Vector2.ZERO
 		move_and_slide()
-		return
+		return 
 
-	# PRIORITAS 3: TERLUKA BIASA (Stun)
-	if is_hurting: 
-		velocity = Vector2.ZERO
-		move_and_slide()
-		return
-	# --- AI LOGIC ---
+	# Cari Player
+	if not player:
+		player = get_tree().get_first_node_in_group("Player")
 	
-	# 1. SERANG (Prioritas Tinggi)
-	if player_in_attack_range:
-		velocity = Vector2.ZERO
-		move_and_slide()
+	var dist = 9999.0
+	if player:
+		dist = global_position.distance_to(player.global_position)
+	
+	# --- LOGIKA AI PRIORITY ---
+	
+	# 1. DEKAT? -> SERANG
+	if player and dist <= attack_range and attack_cooldown.is_stopped():
+		attack_sequence()
 		
-		# Selalu update arah hadap ke player saat diam
-		if player: update_animation_parameters(player.global_position - global_position)
-			
-		if attack_cooldown.is_stopped():
-			attack()
-		else:
-			anim.play("idle_" + facing_dir)
-			
-	# 2. KEJAR (Prioritas Menengah)
-	elif player_chase and player:
-		var direction = (player.global_position - global_position).normalized()
-		velocity = direction * speed
-		move_and_slide()
-		
-		update_animation_parameters(direction)
+	# 2. NAMPAK? -> KEJAR
+	elif player and dist <= detect_range:
+		var dir = (player.global_position - global_position).normalized()
+		velocity = dir * run_speed
+		update_facing_direction(dir)
 		anim.play("run_" + facing_dir)
+		move_and_slide()
 		
-	# 3. PATROLI
+	# 3. AMAN? -> PATROLI
 	else:
-		if is_patrol_walking:
-			velocity = patrol_direction * speed
-			move_and_slide()
-			update_animation_parameters(patrol_direction)
-			anim.play("walk_" + facing_dir)
-		else:
-			velocity = Vector2.ZERO
-			move_and_slide()
-			anim.play("idle_" + facing_dir)
+		process_patrol()
 
-# --- FUNGSI PENTING: UPDATE ARAH ---
-func update_animation_parameters(move_input: Vector2):
-	if move_input != Vector2.ZERO:
-		# Logika prioritas sumbu (Lebih condong horizontal atau vertikal?)
-		if abs(move_input.x) > abs(move_input.y):
-			facing_dir = "side"
-			anim.flip_h = (move_input.x < 0)
-		else:
-			if move_input.y > 0: facing_dir = "front" # Bawah
-			else: facing_dir = "back" # Atas
-			anim.flip_h = false
-
-# --- SERANGAN ---
-func attack():
-	if player == null: return
-	
-	is_attacking = true
+# --- LOGIKA SERANGAN (SINKRONISASI ANIMASI) ---
+func attack_sequence():
+	is_attacking = true # KUNCI STATUS (Gak bisa gerak)
 	velocity = Vector2.ZERO
 	
-	# Debug Arah
-	update_animation_parameters(player.global_position - global_position)
-	print("[DEBUG] Vampir Serang! Arah: ", facing_dir, " | Posisi Player: ", player.global_position)
+	# Hadap ke player sebelum pukul
+	var dir_to_player = (player.global_position - global_position).normalized()
+	update_facing_direction(dir_to_player)
 	
+	# 1. Mainkan Animasi
 	anim.play("attack_" + facing_dir)
 	
-	await get_tree().create_timer(windup_time).timeout
-	if is_dead: return
-	
-	# Lunge
-	if player != null:
-		var direction = (player.global_position - global_position).normalized()
-		velocity = direction * lunge_speed
-	
+	# 2. Tunggu Windup (Misal frame ke-2 baru pukul)
+	# Kita pakai timer manual singkat agar pas dengan gerakan tangan
 	await get_tree().create_timer(0.3).timeout
-	velocity = Vector2.ZERO
-	
-	if player_in_attack_range and not is_dead:
-		if player.has_method("receive_damage"):
-			player.receive_damage(attack_damage, global_position)
-			heal_self(10)
-	
-	attack_cooldown.start()
-
-func heal_self(amount):
-	health += amount
-	if health > max_health: health = max_health
-	if health_bar: health_bar._on_health_updated(health)
-
-# --- SINYAL PENDUKUNG ---
-func _on_animated_sprite_2d_animation_finished():
-	# Debugging Nama Animasi
-	# print("[DEBUG] Animasi Selesai: ", anim.animation)
-	
-	if anim.animation.begins_with("attack"): 
-		is_attacking = false
-	elif anim.animation.begins_with("hurt"): 
-		is_hurting = false
-
-func _on_detect_area_body_entered(body):
-	if body.is_in_group("Player"):
-		print("[DEBUG] Mata: Player Masuk Radius Kejar")
-		player = body
-		player_chase = true
-
-func _on_detect_area_body_exited(body):
-	if body.is_in_group("Player"):
-		
-		# PENGAMAN LOGIKA:
-		# Jika sinyal Exit bunyi TAPI Vampir sedang melompat (Lunge), 
-		# itu biasanya kesalahan fisika/glitch. ABAIKAN sinyalnya.
-		if is_attacking:
-			print("[DEBUG] Sinyal Exit muncul saat Serang. Abaikan.")
-			return
-		# Jika sedang jalan biasa, baru kita anggap Player benar-benar hilang
-		print("[DEBUG] Mata: Player Benar-benar Hilang.")
-		player = null
-		player_chase = false
-
-# --- SINYAL JARAK SERANG ---
-
-func _on_attack_area_body_entered(body):
-	if body.is_in_group("Player"):
-		print("[DEBUG] Range: Masuk Jarak Pukul -> Stop Kejar, Siap Serang")
-		player_in_attack_range = true
-
-func _on_attack_area_body_exited(body):
-	if body.is_in_group("Player"):
-		print("[DEBUG] Range: Keluar Jarak Pukul -> Kejar Lagi")
-		player_in_attack_range = false
-	
-# --- TERIMA DAMAGE (Copy paste fungsi lama Anda yang sudah benar di sini) ---
-func _on_hurt_box_area_entered(area):
-	if area.is_in_group("attack_hitbox"):
-		var attacker = area.get_parent()
-		take_damage(attacker.global_position, attacker.attack_damage)
-
-func take_damage(attacker_pos, amount):
 	if is_dead: return
-	print("[DEBUG] Vampir Kena Pukul! Sisa HP: ", health)
-	health -= amount
-	if health_bar: health_bar._on_health_updated(health)
 	
-	if is_attacking:
-		# Opsi A: Super Armor TOTAL (Tidak kena stun/animasi hurt, TAPI kena knockback dikit)
-		is_in_knockback = true
-		var dir = (global_position - attacker_pos).normalized()
-		velocity = dir * (knockback_power * 0.5) # Knockback separuh jika sedang menyerang
-		
-		get_tree().create_timer(0.1).timeout.connect(func(): is_in_knockback = false; velocity = Vector2.ZERO)
-		
-		# Cek mati di sini juga
-		if health <= 0: die()
-		return 
+	# 3. NYALAKAN HITBOX
+	if weapon_collider: weapon_collider.disabled = false
+	heal(lifesteal_amount) 
 	
-
-func die():
-	if is_dead: return
-	# Set status
-	is_dead = true
-	is_hurting = false
+	# 4. Tunggu Sebentar (Durasi hitbox aktif)
+	await get_tree().create_timer(0.2).timeout
+	
+	# 5. MATIKAN HITBOX
+	if weapon_collider: weapon_collider.disabled = true
+	
+	# 6. TUNGGU ANIMASI SELESAI (Fairness: Player bisa pukul balik saat ini)
+	await anim.animation_finished
+	
+	# 7. Selesai
 	is_attacking = false
-	is_in_knockback = false
-	velocity = Vector2.ZERO
+	attack_cooldown.start(attack_cooldown_time) # Mulai cooldown panjang
+
+# --- LOGIKA PATROLI (LEBIH RAPI) ---
+func process_patrol():
+	if is_patrol_walking:
+		velocity = patrol_direction * speed
+		update_facing_direction(patrol_direction)
+		anim.play("walk_" + facing_dir)
+		move_and_slide()
+	else:
+		velocity = Vector2.ZERO
+		anim.play("idle_" + facing_dir)
+		move_and_slide()
+
+func _pick_new_patrol_state():
+	if is_dead or is_attacking: return # Jangan ganti state kalau lagi sibuk
+	
+	is_patrol_walking = not is_patrol_walking
+	
+	if is_patrol_walking:
+		# PILIH 4 ARAH KARDINAL (Atas, Bawah, Kiri, Kanan) - Bukan Diagonal
+		var directions = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
+		patrol_direction = directions.pick_random()
+		patrol_timer.wait_time = randf_range(1.5, 3.0) # Jalan agak lama
+	else:
+		patrol_timer.wait_time = randf_range(1.0, 2.0) # Istirahat sebentar
+		
+	patrol_timer.start()
+
+# --- FUNGSI PENDUKUNG ---
+func heal(amount):
+	current_health += amount
+	if current_health > max_health: current_health = max_health
+	on_health_changed.emit(current_health)
+
+func update_facing_direction(move_input: Vector2):
+	if move_input == Vector2.ZERO: return
+	if abs(move_input.x) > abs(move_input.y):
+		facing_dir = "side"
+		anim.flip_h = (move_input.x < 0)
+	else:
+		if move_input.y > 0: facing_dir = "front"
+		else: facing_dir = "back"
+		anim.flip_h = false
+
+# --- VISUAL ---
+func _play_hurt_anim(_attacker_pos):
+	# Vampir tangguh, kalau lagi nyerang gak bisa distun (Super Armor)
+	if is_attacking: return 
+	anim.play("hurt_" + facing_dir)
+
+func _play_death_anim():
 	anim.play("die_" + facing_dir)
-	died.emit()
+	
+	if health_bar: 
+		health_bar.visible = false # Sembunyikan bar HP seketika
+		
+	if weapon_collider: weapon_collider.disabled = true
+	patrol_timer.stop()
+	set_physics_process(false) # Matikan otak AI
 	death_timer.start()
 
-func _on_death_timer_timeout(): queue_free()
-func _on_patrol_timer_timeout(): _pick_new_patrol_state()
-func _pick_new_patrol_state():
-	is_patrol_walking = not is_patrol_walking
-	if is_patrol_walking:
-		patrol_direction = Vector2(randf_range(-1, 1), randf_range(-1, 1)).normalized()
-		patrol_timer.wait_time = randf_range(2.0, 4.0)
-	else:
-		patrol_timer.wait_time = randf_range(1.0, 3.0)
-	patrol_timer.start()
+func _on_death_timer_timeout():
+	queue_free()
+
+func _on_anim_finished():
+	pass

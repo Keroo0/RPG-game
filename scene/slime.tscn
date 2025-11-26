@@ -1,8 +1,9 @@
-[gd_scene load_steps=73 format=3 uid="uid://be4y4c3kv7ety"]
+[gd_scene load_steps=74 format=3 uid="uid://be4y4c3kv7ety"]
 
 [ext_resource type="Script" uid="uid://igy42bj0jbb6" path="res://script/slime.gd" id="1_08lxr"]
 [ext_resource type="Texture2D" uid="uid://c0wssesb26nt5" path="res://arts/sprites/characters/slime.png" id="1_bwbrm"]
 [ext_resource type="PackedScene" uid="uid://tylkmd2e0fgs" path="res://enemy_health_bar.tscn" id="3_p3a6y"]
+[ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="3_wkhhu"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bwbrm"]
 atlas = ExtResource("1_bwbrm")
@@ -538,33 +539,43 @@ radius = 73.00685
 
 [node name="Slime" type="CharacterBody2D" groups=["Enemy"]]
 y_sort_enabled = true
+collision_layer = 4
+collision_mask = 3
 script = ExtResource("1_08lxr")
+speed = 20
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ew7u5")
 animation = &"cry_side"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(0, 3)
 shape = SubResource("CircleShape2D_vq0y3")
 
 [node name="DetectArea" type="Area2D" parent="."]
-visible = false
+collision_layer = 0
+collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectArea"]
 scale = Vector2(1.88, 1.88)
 shape = SubResource("CircleShape2D_bwbrm")
 
 [node name="HurtBox" type="Area2D" parent="."]
-visible = false
+scale = Vector2(0.18311921, 0.18311921)
+collision_layer = 16
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(0, 3)
 shape = SubResource("CircleShape2D_p3a6y")
 
 [node name="AttackArea" type="Area2D" parent="." groups=["enemy_attack"]]
-visible = false
+scale = Vector2(0.5215843, 0.5215843)
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_wkhhu")
+damage = 20
+knockback_force = 150.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_p3a6y")

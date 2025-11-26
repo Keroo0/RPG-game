@@ -1,29 +1,18 @@
-# Pastikan skrip ini 'extends TextureProgressBar'
 extends TextureProgressBar
 
-# Fungsi ini akan berjalan saat node siap
 func _ready():
-	# TUNGGU SATU FRAME
-	# Ini memberi waktu agar 'Player' bisa siap lebih dulu (FIX Error 'Nil')
-	await get_tree().process_frame 
+	# 1. HAPUS LOGIKA MENUNGGU PLAYER!
+	# UI tidak perlu tahu Player ada atau mati. UI hanya perlu tahu DATA.
 	
-	# 1. Cari node 'player'
-	var player = get_tree().get_first_node_in_group("Player")
+	# 2. Ambil Data Awal dari GameManager (Bank Pusat)
+	max_value = GameManager.max_health
+	value = GameManager.current_health
 	
-	# 2. Cek apakah player-nya ketemu
-	if player:
-		# 3. Hubungkan sinyal "health_updated" dari player 
-		#    ke fungsi "update_health_bar" di skrip INI
-		player.healthChange.connect(update_health_bar)
-		
-		# 4. Atur nilai awal health bar (propertinya sama persis)
-		max_value = player.max_health 
-		value = player.current_health   
-	else:
-		# Jika player tidak ketemu, beri tahu di konsol
-		print("ERROR: healthBar.gd (Texture) tidak bisa menemukan node di grup 'player'!")
+	# 3. Dengarkan Sinyal dari GameManager
+	# "Kalau data di GameManager berubah, UI ikut berubah"
+	if not GameManager.health_changed.is_connected(_update_bar):
+		GameManager.health_changed.connect(_update_bar)
 
-# Fungsi ini akan dipanggil secara otomatis oleh sinyal dari player
-func update_health_bar(new_health):
-	# Propertinya sama, 'value'
+# Fungsi ini jalan otomatis saat GameManager teriak "Darah Berubah!"
+func _update_bar(new_health):
 	value = new_health

@@ -1,15 +1,16 @@
-# GANTI 'extends ProgressBar' MENJADI:
 extends TextureProgressBar
 
 func _ready():
-	# Sembunyikan bar saat awal (opsional)
+	# Sembunyi dulu kalau belum dipukul (Opsional)
 	# visible = false 
 	pass
 
-func init_health(_health):
-	max_value = _health
-	value = _health
+# Fungsi ini dipanggil oleh Slime saat spawn
+func init_health(max_hp, current_hp):
+	max_value = max_hp
+	value = current_hp
 
-func _on_health_updated(_health):
-	value = _health
+# Fungsi ini dipanggil saat sinyal 'on_health_changed' bunyi
+func _on_health_updated(new_health):
+	value = new_health
 	visible = true

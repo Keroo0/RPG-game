@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dspfj4ej70ube"]
+[gd_scene load_steps=7 format=3 uid="uid://dspfj4ej70ube"]
 
 [ext_resource type="Texture2D" uid="uid://bd1xbyl2m5hca" path="res://arts/sprites/objects/healthbarUnder.png" id="1_5hwma"]
 [ext_resource type="Script" uid="uid://cf3ualli1u1ra" path="res://script/status_game.gd" id="1_r1nq8"]
 [ext_resource type="Texture2D" uid="uid://uj31enb83v4l" path="res://arts/sprites/objects/healthbarProgress.png" id="2_guihc"]
 [ext_resource type="Script" uid="uid://beefcu2bnl5ko" path="res://script/texture_progress_bar.gd" id="3_r1nq8"]
 [ext_resource type="Texture2D" uid="uid://r8a3nqjgcov8" path="res://arts/sprites/objects/profile.png" id="4_guihc"]
-[ext_resource type="Texture2D" uid="uid://d1s8rnscw2o8h" path="res://arts/chara/processed_image.png" id="6_h2rvt"]
 [ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="7_kq71a"]
 
 [node name="StatusGame" type="Control"]
@@ -64,9 +63,8 @@ offset_bottom = 40.0
 grow_horizontal = 0
 scale = Vector2(0.97288907, 1.0313698)
 
-[node name="IconSlime" type="TextureRect" parent="ConCounter"]
+[node name="EnemyIcon" type="TextureRect" parent="ConCounter"]
 layout_mode = 2
-texture = ExtResource("6_h2rvt")
 expand_mode = 3
 flip_h = true
 

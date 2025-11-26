@@ -1,7 +1,9 @@
-[gd_scene load_steps=58 format=3 uid="uid://bc8eakyri4qd2"]
+[gd_scene load_steps=60 format=3 uid="uid://bc8eakyri4qd2"]
 
 [ext_resource type="Script" uid="uid://cks858bxgsfcb" path="res://scene/player1.gd" id="1_hjaqi"]
 [ext_resource type="Texture2D" uid="uid://b6yvroqibxr68" path="res://arts/sprites/characters/player.png" id="1_xo3ru"]
+[ext_resource type="Script" uid="uid://clw654dj2bcrq" path="res://script/CameraManager.gd" id="3_ct4mp"]
+[ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="3_fvtld"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hjaqi"]
 atlas = ExtResource("1_xo3ru")
@@ -418,7 +420,7 @@ radius = 5.0
 height = 10.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fvtld"]
-radius = 8.0
+radius = 12.0
 height = 24.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_fvtld"]
@@ -426,7 +428,11 @@ radius = 20.396078
 
 [node name="Player" type="CharacterBody2D" groups=["Player"]]
 y_sort_enabled = true
+collision_layer = 2
+collision_mask = 5
 script = ExtResource("1_hjaqi")
+speed = null
+max_health = null
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_rtno0")
@@ -438,9 +444,12 @@ position = Vector2(0, 14)
 shape = SubResource("CapsuleShape2D_hjaqi")
 
 [node name="hurt_box" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hurt_box"]
 position = Vector2(3, 9)
+scale = Vector2(1, 1.1200004)
 shape = SubResource("CapsuleShape2D_fvtld")
 
 [node name="cooldown" type="Timer" parent="hurt_box"]
@@ -461,8 +470,14 @@ limit_bottom = 649
 rotation_smoothing_enabled = true
 drag_horizontal_enabled = true
 drag_vertical_enabled = true
+script = ExtResource("3_ct4mp")
 
 [node name="AttackHitBox" type="Area2D" parent="." groups=["attack_hitbox"]]
+collision_layer = 0
+collision_mask = 16
+script = ExtResource("3_fvtld")
+damage = 50
+knockback_force = 200.0
 
 [node name="areaAttack" type="CollisionShape2D" parent="AttackHitBox"]
 position = Vector2(1, 8)
