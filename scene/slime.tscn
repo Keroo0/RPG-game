@@ -1,7 +1,8 @@
-[gd_scene load_steps=72 format=3 uid="uid://be4y4c3kv7ety"]
+[gd_scene load_steps=73 format=3 uid="uid://be4y4c3kv7ety"]
 
 [ext_resource type="Script" uid="uid://igy42bj0jbb6" path="res://script/slime.gd" id="1_08lxr"]
 [ext_resource type="Texture2D" uid="uid://c0wssesb26nt5" path="res://arts/sprites/characters/slime.png" id="1_bwbrm"]
+[ext_resource type="PackedScene" uid="uid://tylkmd2e0fgs" path="res://enemy_health_bar.tscn" id="3_p3a6y"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bwbrm"]
 atlas = ExtResource("1_bwbrm")
@@ -275,7 +276,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qjmrd")
 }],
-"loop": true,
+"loop": false,
 "name": &"cry_back",
 "speed": 5.0
 }, {
@@ -289,7 +290,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_p1jmo")
 }],
-"loop": true,
+"loop": false,
 "name": &"cry_front",
 "speed": 5.0
 }, {
@@ -303,7 +304,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_73cpl")
 }],
-"loop": true,
+"loop": false,
 "name": &"cry_side",
 "speed": 5.0
 }, {
@@ -323,7 +324,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_y7fbw")
 }],
-"loop": true,
+"loop": false,
 "name": &"die",
 "speed": 5.0
 }, {
@@ -349,7 +350,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_gotwi")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_back",
 "speed": 5.0
 }, {
@@ -375,7 +376,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_slfq2")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_front",
 "speed": 5.0
 }, {
@@ -401,7 +402,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_p5cg2")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_side",
 "speed": 5.0
 }, {
@@ -526,14 +527,14 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_vq0y3"]
+radius = 11.0
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_bwbrm"]
 radius = 45.705578
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_vq0y3"]
-radius = 6.0827627
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_p3a6y"]
-radius = 24.0
+radius = 73.00685
 
 [node name="Slime" type="CharacterBody2D" groups=["Enemy"]]
 y_sort_enabled = true
@@ -541,41 +542,52 @@ script = ExtResource("1_08lxr")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ew7u5")
-animation = &"cry_front"
-frame_progress = 0.17945768
+animation = &"cry_side"
 
-[node name="detect_area" type="Area2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 visible = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="detect_area"]
-scale = Vector2(1.88, 1.88)
-shape = SubResource("CircleShape2D_bwbrm")
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="."]
+position = Vector2(0, 3)
 shape = SubResource("CircleShape2D_vq0y3")
 
-[node name="death" type="Timer" parent="."]
+[node name="DetectArea" type="Area2D" parent="."]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectArea"]
+scale = Vector2(1.88, 1.88)
+shape = SubResource("CircleShape2D_bwbrm")
 
 [node name="HurtBox" type="Area2D" parent="."]
 visible = false
 
-[node name="Hurtb" type="CollisionShape2D" parent="HurtBox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 position = Vector2(0, 3)
 shape = SubResource("CircleShape2D_p3a6y")
 
-[node name="Hit_box" type="Area2D" parent="." groups=["enemy_attack"]]
+[node name="AttackArea" type="Area2D" parent="." groups=["enemy_attack"]]
+visible = false
 
-[node name="HitB" type="CollisionShape2D" parent="Hit_box"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_p3a6y")
 disabled = true
 
-[node name="AttackCd" type="Timer" parent="."]
+[node name="AttackCooldown" type="Timer" parent="."]
+wait_time = 0.222
 one_shot = true
 
+[node name="death_timer" type="Timer" parent="."]
+one_shot = true
+
+[node name="EnemyHealthBar" parent="." instance=ExtResource("3_p3a6y")]
+offset_left = -8.0
+offset_top = -6.0
+offset_right = 6.0
+offset_bottom = -4.0
+
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
-[connection signal="body_entered" from="detect_area" to="." method="_on_area_2d_body_entered"]
-[connection signal="body_exited" from="detect_area" to="." method="_on_area_2d_body_exited"]
-[connection signal="timeout" from="death" to="." method="_on_receive_damage_timeout"]
-[connection signal="timeout" from="death" to="." method="_on_death_timeout"]
-[connection signal="body_entered" from="HurtBox" to="." method="_on_hurt_box_body_entered"]
-[connection signal="body_entered" from="Hit_box" to="." method="_on_hurt_box_body_entered"]
+[connection signal="body_entered" from="DetectArea" to="." method="_on_detect_area_body_entered"]
+[connection signal="body_exited" from="DetectArea" to="." method="_on_detect_area_body_exited"]
+[connection signal="area_entered" from="HurtBox" to="." method="_on_hurt_box_area_entered"]
+[connection signal="body_entered" from="AttackArea" to="." method="_on_attack_area_body_entered"]
+[connection signal="body_exited" from="AttackArea" to="." method="_on_attack_area_body_exited"]
+[connection signal="timeout" from="death_timer" to="." method="_on_receive_damage_timeout"]
+[connection signal="timeout" from="death_timer" to="." method="_on_death_timer_timeout"]

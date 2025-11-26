@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://tylkmd2e0fgs"]
+
+[ext_resource type="Texture2D" uid="uid://bd1xbyl2m5hca" path="res://arts/sprites/objects/healthbarUnder.png" id="1_c0t6j"]
+[ext_resource type="Texture2D" uid="uid://uj31enb83v4l" path="res://arts/sprites/objects/healthbarProgress.png" id="2_fmfh8"]
+[ext_resource type="Script" uid="uid://bobij005buclj" path="res://script/enemy_health_bar.gd" id="3_fmfh8"]
+
+[node name="EnemyHealthBar" type="TextureProgressBar"]
+offset_right = 3.0
+offset_bottom = 1.0
+nine_patch_stretch = true
+texture_under = ExtResource("1_c0t6j")
+texture_progress = ExtResource("2_fmfh8")
+script = ExtResource("3_fmfh8")

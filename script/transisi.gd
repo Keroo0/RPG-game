@@ -1,7 +1,8 @@
 extends CanvasLayer
+@onready var tirai: ColorRect = $Tirai
 
 var transisi_on : bool = false
-@onready var tirai: ColorRect = $Tirai
+
 
 func fade_out(scene_path:String) -> void:
 	if transisi_on :

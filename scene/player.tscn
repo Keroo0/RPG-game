@@ -446,6 +446,7 @@ shape = SubResource("CapsuleShape2D_fvtld")
 [node name="cooldown" type="Timer" parent="hurt_box"]
 
 [node name="deal_attack" type="Timer" parent="."]
+one_shot = true
 
 [node name="death" type="Timer" parent="."]
 wait_time = 0.569
@@ -462,15 +463,12 @@ drag_horizontal_enabled = true
 drag_vertical_enabled = true
 
 [node name="AttackHitBox" type="Area2D" parent="." groups=["attack_hitbox"]]
-visible = false
 
 [node name="areaAttack" type="CollisionShape2D" parent="AttackHitBox"]
 position = Vector2(1, 8)
 shape = SubResource("CircleShape2D_fvtld")
 disabled = true
 
-[connection signal="body_entered" from="hurt_box" to="." method="_on_hitbox_body_entered"]
-[connection signal="body_exited" from="hurt_box" to="." method="_on_hitbox_body_exited"]
-[connection signal="timeout" from="hurt_box/cooldown" to="." method="_on_cooldown_timeout"]
+[connection signal="timeout" from="hurt_box/cooldown" to="." method="_on_hurtbox_cooldown_timeout"]
 [connection signal="timeout" from="deal_attack" to="." method="_on_deal_attack_timeout"]
 [connection signal="timeout" from="death" to="." method="_on_death_timeout"]
