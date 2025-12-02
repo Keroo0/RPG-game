@@ -1,17 +1,26 @@
-[gd_scene load_steps=7 format=3 uid="uid://dspfj4ej70ube"]
+[gd_scene load_steps=14 format=3 uid="uid://dspfj4ej70ube"]
 
 [ext_resource type="Texture2D" uid="uid://bd1xbyl2m5hca" path="res://arts/sprites/objects/healthbarUnder.png" id="1_5hwma"]
 [ext_resource type="Script" uid="uid://cf3ualli1u1ra" path="res://script/status_game.gd" id="1_r1nq8"]
 [ext_resource type="Texture2D" uid="uid://uj31enb83v4l" path="res://arts/sprites/objects/healthbarProgress.png" id="2_guihc"]
 [ext_resource type="Script" uid="uid://beefcu2bnl5ko" path="res://script/texture_progress_bar.gd" id="3_r1nq8"]
 [ext_resource type="Texture2D" uid="uid://r8a3nqjgcov8" path="res://arts/sprites/objects/profile.png" id="4_guihc"]
+[ext_resource type="Texture2D" uid="uid://b8g3odaprvig" path="res://arts/sprites/objects/dashUnder.png" id="7_cutpe"]
+[ext_resource type="Texture2D" uid="uid://dlahq30o3msbj" path="res://arts/sprites/objects/dash.png" id="7_h2rvt"]
 [ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="7_kq71a"]
+[ext_resource type="Texture2D" uid="uid://d3cmvskigbad8" path="res://bahan/coin3.png" id="9_sfsbm"]
+[ext_resource type="Texture2D" uid="uid://c51gwuoeqoowr" path="res://arts/sprites/objects/ragemodUnder.png" id="9_yq6vo"]
+[ext_resource type="FontFile" uid="uid://clbfwu2upnrli" path="res://arts/font/ByteBounce.ttf" id="10_2snix"]
+[ext_resource type="Texture2D" uid="uid://dlsovmftgnltd" path="res://arts/sprites/objects/ragemod.png" id="10_kn65u"]
+[ext_resource type="AudioStream" uid="uid://dhwempgxbexyf" path="res://arts/audio/main menu/click.wav" id="13_kn65u"]
 
 [node name="StatusGame" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -3.0
+offset_right = -3.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_r1nq8")
@@ -73,5 +82,52 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("7_kq71a")
 theme_override_font_sizes/font_size = 40
 text = "0/0"
+
+[node name="DashIcon" type="TextureProgressBar" parent="."]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 44.0
+offset_right = 52.0
+offset_bottom = 84.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_under = ExtResource("7_cutpe")
+texture_progress = ExtResource("7_h2rvt")
+
+[node name="PowerUp" type="TextureProgressBar" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 61.0
+offset_top = 44.0
+offset_right = 101.0
+offset_bottom = 84.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_under = ExtResource("9_yq6vo")
+texture_progress = ExtResource("10_kn65u")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 1100.0
+offset_top = 35.000004
+offset_right = 1168.0
+offset_bottom = 75.00001
+scale = Vector2(0.7425713, 0.69597656)
+
+[node name="Coin" type="TextureRect" parent="HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("9_sfsbm")
+expand_mode = 2
+
+[node name="JumlahCoin" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("10_2snix")
+theme_override_font_sizes/font_size = 54
+text = "0"
+
+[node name="SfxButton" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("13_kn65u")
+volume_db = -10.0
 
 [connection signal="pressed" from="Pause" to="." method="_on_pause_pressed"]

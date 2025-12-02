@@ -1,9 +1,15 @@
-[gd_scene load_steps=60 format=3 uid="uid://bc8eakyri4qd2"]
+[gd_scene load_steps=66 format=3 uid="uid://bc8eakyri4qd2"]
 
 [ext_resource type="Script" uid="uid://cks858bxgsfcb" path="res://scene/player1.gd" id="1_hjaqi"]
 [ext_resource type="Texture2D" uid="uid://b6yvroqibxr68" path="res://arts/sprites/characters/player.png" id="1_xo3ru"]
+[ext_resource type="PackedScene" uid="uid://bss6kq7ooxa4f" path="res://scene/aura.tscn" id="2_s4jxa"]
 [ext_resource type="Script" uid="uid://clw654dj2bcrq" path="res://script/CameraManager.gd" id="3_ct4mp"]
 [ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="3_fvtld"]
+[ext_resource type="AudioStream" uid="uid://dwmkb4p5wr0yv" path="res://arts/audio/player/hit.mp3" id="6_hp4bs"]
+[ext_resource type="AudioStream" uid="uid://bbbersylcbvu0" path="res://arts/audio/player/dash.mp3" id="7_g2vtq"]
+[ext_resource type="AudioStream" uid="uid://c53ltjqs78m0i" path="res://arts/audio/player/hurt.wav" id="8_ml7e8"]
+[ext_resource type="AudioStream" uid="uid://buyn73vrhtjf5" path="res://arts/audio/player/getkey.mp3" id="9_ihjo1"]
+[ext_resource type="AudioStream" uid="uid://b4vodpnxavtlc" path="res://arts/audio/player/powerUpfull.mp3" id="10_dk1vr"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hjaqi"]
 atlas = ExtResource("1_xo3ru")
@@ -221,9 +227,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ct4mp")
 }],
-"loop": true,
+"loop": false,
 "name": &"die",
-"speed": 5.0
+"speed": 7.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -238,9 +244,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_g2vtq")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_back",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -255,9 +261,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dk1vr")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_front",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -272,9 +278,9 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_bup7g")
 }],
-"loop": true,
+"loop": false,
 "name": &"hit_side",
-"speed": 5.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -431,13 +437,11 @@ y_sort_enabled = true
 collision_layer = 2
 collision_mask = 5
 script = ExtResource("1_hjaqi")
-speed = null
-max_health = null
+aura_scene = ExtResource("2_s4jxa")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_rtno0")
-animation = &"hit_side"
-frame_progress = 0.7931721
+animation = &"hit_back"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 14)
@@ -476,13 +480,31 @@ script = ExtResource("3_ct4mp")
 collision_layer = 0
 collision_mask = 16
 script = ExtResource("3_fvtld")
-damage = 50
+damage = 60
 knockback_force = 200.0
 
 [node name="areaAttack" type="CollisionShape2D" parent="AttackHitBox"]
 position = Vector2(1, 8)
 shape = SubResource("CircleShape2D_fvtld")
 disabled = true
+
+[node name="BuffTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="SfxAttack" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_hp4bs")
+
+[node name="SfxDash" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_g2vtq")
+
+[node name="SfxHurt" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_ml7e8")
+
+[node name="SfxCharge" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("9_ihjo1")
+
+[node name="SfxPowerUp" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("10_dk1vr")
 
 [connection signal="timeout" from="hurt_box/cooldown" to="." method="_on_hurtbox_cooldown_timeout"]
 [connection signal="timeout" from="deal_attack" to="." method="_on_deal_attack_timeout"]

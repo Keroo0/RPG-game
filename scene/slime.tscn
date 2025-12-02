@@ -1,9 +1,13 @@
-[gd_scene load_steps=74 format=3 uid="uid://be4y4c3kv7ety"]
+[gd_scene load_steps=78 format=3 uid="uid://be4y4c3kv7ety"]
 
 [ext_resource type="Script" uid="uid://igy42bj0jbb6" path="res://script/slime.gd" id="1_08lxr"]
 [ext_resource type="Texture2D" uid="uid://c0wssesb26nt5" path="res://arts/sprites/characters/slime.png" id="1_bwbrm"]
+[ext_resource type="PackedScene" uid="uid://cmt3ea4ruwew2" path="res://scene/coin.tscn" id="2_q8ldp"]
+[ext_resource type="AudioStream" uid="uid://bhgvadb2e4qy7" path="res://arts/audio/slime/slime hurt.mp3" id="3_oa5pk"]
 [ext_resource type="PackedScene" uid="uid://tylkmd2e0fgs" path="res://enemy_health_bar.tscn" id="3_p3a6y"]
 [ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="3_wkhhu"]
+[ext_resource type="AudioStream" uid="uid://br5ukjjxlsgdy" path="res://arts/audio/slime/slime die.mp3" id="4_a0ytv"]
+[ext_resource type="AudioStream" uid="uid://b8i064laf66yy" path="res://arts/audio/slime/slime hit.mp3" id="6_yn13l"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bwbrm"]
 atlas = ExtResource("1_bwbrm")
@@ -543,6 +547,9 @@ collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_08lxr")
 speed = 20
+coin_drop_scene = ExtResource("2_q8ldp")
+audio_hurt = ExtResource("3_oa5pk")
+audio_die = ExtResource("4_a0ytv")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_ew7u5")
@@ -593,6 +600,9 @@ offset_left = -8.0
 offset_top = -6.0
 offset_right = 6.0
 offset_bottom = -4.0
+
+[node name="SfxAttack" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_yn13l")
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
 [connection signal="body_entered" from="DetectArea" to="." method="_on_detect_area_body_entered"]

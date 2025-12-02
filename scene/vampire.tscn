@@ -1,14 +1,19 @@
-[gd_scene load_steps=150 format=3 uid="uid://cg3kexdt7ouco"]
+[gd_scene load_steps=155 format=3 uid="uid://cg3kexdt7ouco"]
 
 [ext_resource type="Texture2D" uid="uid://cdeld1hgium67" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Attack_with_shadow.png" id="1_2raoq"]
 [ext_resource type="Script" uid="uid://cfp3u005sdg16" path="res://script/vampire.gd" id="1_pl7ja"]
 [ext_resource type="Texture2D" uid="uid://b8wfknka0u5h4" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Hurt_with_shadow.png" id="1_w4guw"]
 [ext_resource type="Texture2D" uid="uid://btn4f0js7lhhy" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Idle_with_shadow.png" id="2_2raoq"]
 [ext_resource type="PackedScene" uid="uid://tylkmd2e0fgs" path="res://enemy_health_bar.tscn" id="2_jxdyf"]
+[ext_resource type="PackedScene" uid="uid://cmt3ea4ruwew2" path="res://scene/coin.tscn" id="2_n3f7b"]
+[ext_resource type="AudioStream" uid="uid://c53ltjqs78m0i" path="res://arts/audio/player/hurt.wav" id="3_0afi1"]
 [ext_resource type="Texture2D" uid="uid://bfoeyw8im1g5d" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Death_with_shadow.png" id="3_4xj7a"]
 [ext_resource type="Texture2D" uid="uid://pmjfxw6ol5dg" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Run_with_shadow.png" id="3_pl7ja"]
+[ext_resource type="AudioStream" uid="uid://dabti45nehyoa" path="res://arts/audio/vampire/vampire death.mp3" id="4_cweqo"]
 [ext_resource type="Texture2D" uid="uid://dghpau0poihgu" path="res://bahan/vampire/PNG/Vampires3/With_shadow/Vampires3_Walk_with_shadow.png" id="4_jxdyf"]
 [ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="9_q653c"]
+[ext_resource type="AudioStream" uid="uid://ceuepq6rkfnns" path="res://arts/audio/vampire/vamp attack.mp3" id="13_wbjnx"]
+[ext_resource type="AudioStream" uid="uid://cxhi6a7yssyjq" path="res://arts/audio/vampire/vampire run.mp3" id="14_1js1x"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pl7ja"]
 atlas = ExtResource("1_2raoq")
@@ -1066,7 +1071,13 @@ radius = 32.01562
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_pl7ja")
+speed = 30
+run_speed = 60
+coin_drop_scene = ExtResource("2_n3f7b")
+coin_value = 30
 max_health = 300
+audio_hurt = ExtResource("3_0afi1")
+audio_die = ExtResource("4_cweqo")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_wjxtj")
@@ -1079,7 +1090,6 @@ offset_right = 10.0
 offset_bottom = -18.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 position = Vector2(-1, 8)
 rotation = -1.5815438
 shape = SubResource("CapsuleShape2D_2raoq")
@@ -1119,3 +1129,9 @@ knockback_force = 200.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
 shape = SubResource("CircleShape2D_4xj7a")
+
+[node name="SfxAttack" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("13_wbjnx")
+
+[node name="SfxAggro" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("14_1js1x")

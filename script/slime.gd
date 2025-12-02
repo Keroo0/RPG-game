@@ -13,6 +13,8 @@ extends Entity # <--- WARISI DARI ENTITY
 @onready var attack_cooldown: Timer = $AttackCooldown
 @onready var death_timer: Timer = $death_timer
 @onready var health_bar = $EnemyHealthBar 
+@onready var sfx_attack: AudioStreamPlayer2D = $SfxAttack
+
 # Referensi ke CollisionShape Pedang (PENTING untuk sakelar on/off)
 @onready var weapon_collider: CollisionShape2D = $AttackArea/CollisionShape2D
 
@@ -83,6 +85,7 @@ func attack_sequence():
 	if is_dead: return
 	
 	# 3. NYALAKAN PEDANG (Hitbox ON)
+	if sfx_attack: sfx_attack.play()
 	if weapon_collider: weapon_collider.disabled = false
 	
 	# 4. LUNGE! (Lompat ke arah player)
@@ -102,14 +105,18 @@ func attack_sequence():
 	attack_cooldown.start()
 
 # --- VISUAL EFEK (Override dari Entity) ---
-func _play_hurt_anim(attacker_pos):
+func _play_hurt_anim(_attacker_pos):
 	anim.play("cry_side") # Slime nangis visual doang
 	velocity = Vector2.ZERO # Stop gerak pas sakit
 
 func _play_death_anim():
 	anim.play("die")
 	# Pastikan hitbox mati pas mati
-	if weapon_collider: weapon_collider.disabled = true
+	if weapon_collider:
+		weapon_collider.set_deferred("disabled", true)
+	
+	# Matikan hurtbox juga biar gak bisa dipukul lagi
+	$HurtBox/CollisionShape2D.set_deferred("disabled", true)
 	death_timer.start()
 
 func _on_death_timer_timeout():

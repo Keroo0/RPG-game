@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cgtp5ccc38n5n"]
+[gd_scene load_steps=5 format=3 uid="uid://cgtp5ccc38n5n"]
 
 [ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="1_8uq5u"]
 [ext_resource type="Script" uid="uid://bwhm55vv74qn2" path="res://script/game_over.gd" id="1_mxr41"]
+[ext_resource type="AudioStream" uid="uid://dhwempgxbexyf" path="res://arts/audio/main menu/click.wav" id="3_bc2bx"]
+[ext_resource type="AudioStream" uid="uid://clb27pp4p48nn" path="res://arts/audio/Level/gameover.mp3" id="4_6pabp"]
 
 [node name="GameOver" type="CanvasLayer"]
 process_mode = 3
@@ -59,6 +61,16 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("1_8uq5u")
 theme_override_font_sizes/font_size = 37
 text = "Keluar"
+
+[node name="SfxButton" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("3_bc2bx")
+volume_db = -10.0
+
+[node name="Lose" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("4_6pabp")
+autoplay = true
 
 [connection signal="pressed" from="VBoxContainer/ulangi" to="." method="_on_ulangi_pressed"]
 [connection signal="pressed" from="VBoxContainer/keluar" to="." method="_on_keluar_pressed"]

@@ -65,10 +65,22 @@ func _ready():
 
 func _on_enemy_died():
 	enemies_defeated += 1
+	print("Musuh dikalahkan: ", enemies_defeated, " / ", total_enemies)
+	
+	# Update UI Counter
 	if status_game:
 		status_game.update_enemy_count(enemies_defeated, total_enemies)
 	
+	# CEK KEMENANGAN
 	if enemies_defeated >= total_enemies:
+		print("Semua musuh mati! Menunggu transisi...")
+		
+		# --- [BARU] JEDA KEMENANGAN ---
+		# Buat timer 2 detik, dan tunggu sampai timer itu habis (timeout)
+		# Selama menunggu, game tetap jalan (animasi, partikel, dll tetap gerak)
+		await get_tree().create_timer(2.0).timeout
+		
+		# Setelah 2 detik, baru panggil fungsi pindah level
 		call_deferred("go_to_next_level")
 
 func go_to_next_level():

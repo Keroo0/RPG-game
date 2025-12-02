@@ -1,16 +1,21 @@
-[gd_scene load_steps=179 format=3 uid="uid://mgi5ucsaowde"]
+[gd_scene load_steps=184 format=3 uid="uid://mgi5ucsaowde"]
 
 [ext_resource type="Script" uid="uid://6pqjnq0v07gd" path="res://script/orc.gd" id="1_0wvq3"]
 [ext_resource type="Texture2D" uid="uid://cv2ale3ofw6ep" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_attack_without_shadow.png" id="1_abioc"]
 [ext_resource type="Texture2D" uid="uid://6ifr7wprk06d" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_idle_without_shadow.png" id="1_hx2w1"]
 [ext_resource type="Texture2D" uid="uid://qrnfbejdijat" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_death_without_shadow.png" id="2_58y65"]
+[ext_resource type="PackedScene" uid="uid://cmt3ea4ruwew2" path="res://scene/coin.tscn" id="2_lcul3"]
 [ext_resource type="Texture2D" uid="uid://7fydq2tf47ik" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_walk_without_shadow.png" id="2_r0j3i"]
 [ext_resource type="Texture2D" uid="uid://cfmd2uyj7iyid" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_hurt_without_shadow.png" id="3_0wvq3"]
+[ext_resource type="AudioStream" uid="uid://b78lgqyabiw8k" path="res://arts/audio/orc/orc hurt.mp3" id="3_jtf1v"]
 [ext_resource type="Texture2D" uid="uid://bp2n8j600t7xn" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_run_without_shadow.png" id="3_v44s8"]
+[ext_resource type="AudioStream" uid="uid://bbp2woapc30h1" path="res://arts/audio/orc/orc death.mp3" id="4_n1m5j"]
 [ext_resource type="Texture2D" uid="uid://bibqo3yeuirpi" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_run_attack_without_shadow.png" id="5_yvsi8"]
 [ext_resource type="Texture2D" uid="uid://bauiabxltw5g7" path="res://bahan/orc/PNG/Orc3/Without_shadow/orc3_walk_attack_without_shadow.png" id="7_5d8li"]
 [ext_resource type="Script" uid="uid://dv4ebklbwbvy" path="res://Hitbox.gd" id="10_yvsi8"]
 [ext_resource type="PackedScene" uid="uid://tylkmd2e0fgs" path="res://enemy_health_bar.tscn" id="11_5d8li"]
+[ext_resource type="AudioStream" uid="uid://cndae33hf46m8" path="res://arts/audio/orc/AttackNormal m4a.wav" id="13_rk7tp"]
+[ext_resource type="AudioStream" uid="uid://n1u5ol31db6l" path="res://arts/audio/orc/AttackRun.wav" id="14_uw38l"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l0hrb"]
 atlas = ExtResource("1_abioc")
@@ -1270,22 +1275,29 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1ym3a"]
+radius = 5.0
+height = 22.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_5d8li"]
 radius = 111.01801
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_lcul3"]
-radius = 14.979026
-height = 29.958052
+radius = 11.037483
+height = 48.46152
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1fxqe"]
-radius = 32.01562
+radius = 29.017237
 
-[node name="orc" type="CharacterBody2D"]
+[node name="orc" type="CharacterBody2D" groups=["Enemy"]]
 collision_layer = 4
 collision_mask = 3
 script = ExtResource("1_0wvq3")
+detect_range = 200
+coin_drop_scene = ExtResource("2_lcul3")
+coin_value = 50
 max_health = 500
+audio_hurt = ExtResource("3_jtf1v")
+audio_die = ExtResource("4_n1m5j")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_rk7tp")
@@ -1293,42 +1305,45 @@ animation = &"walk_side"
 frame_progress = 0.39260533
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
-position = Vector2(0, -3)
+position = Vector2(0, 5)
+rotation = -1.5707964
 shape = SubResource("CapsuleShape2D_1ym3a")
 
 [node name="death_timer" type="Timer" parent="."]
 wait_time = 1.5
 one_shot = true
 
+[node name="PatrolTimer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
 [node name="AttackCooldown" type="Timer" parent="."]
 wait_time = 0.471
 one_shot = true
 
 [node name="DetectArea" type="Area2D" parent="."]
-visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectArea"]
 shape = SubResource("CircleShape2D_5d8li")
 
 [node name="HurtBox" type="Area2D" parent="."]
-visible = false
 collision_layer = 16
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
-position = Vector2(0, 1)
-rotation = -1.517908
+position = Vector2(0, -6)
+scale = Vector2(0.9809883, 0.7646284)
 shape = SubResource("CapsuleShape2D_lcul3")
 
 [node name="AttackArea" type="Area2D" parent="."]
-visible = false
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("10_yvsi8")
 damage = 100
+knockback_force = 150.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+position = Vector2(0, -3)
 shape = SubResource("CircleShape2D_1fxqe")
 
 [node name="EnemyHealthBar" parent="." instance=ExtResource("11_5d8li")]
@@ -1337,3 +1352,9 @@ offset_top = -32.0
 offset_right = -11.0
 offset_bottom = -31.0
 scale = Vector2(10.202666, 4.811296)
+
+[node name="SfxAttack" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("13_rk7tp")
+
+[node name="SfxRunAttack" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("14_uw38l")

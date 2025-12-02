@@ -1,0 +1,61 @@
+[gd_scene load_steps=4 format=3 uid="uid://ceo47ia5u288w"]
+
+[ext_resource type="Script" uid="uid://brd3s3d2fap5f" path="res://script/next_level.gd" id="1_6g0o2"]
+[ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="2_xcs0p"]
+[ext_resource type="AudioStream" uid="uid://dhwempgxbexyf" path="res://arts/audio/main menu/click.wav" id="3_xcs0p"]
+
+[node name="ComingSoon" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_6g0o2")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.63529414)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -218.5
+offset_top = -266.5
+offset_right = 218.5
+offset_bottom = 266.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_xcs0p")
+theme_override_font_sizes/font_size = 82
+text = "Tamat"
+
+[node name="Label2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_xcs0p")
+theme_override_font_sizes/font_size = 40
+text = "Level 4 coming soon......."
+
+[node name="Kel" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_xcs0p")
+theme_override_font_sizes/font_size = 30
+text = "KELUAR"
+
+[node name="SfxButton" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("3_xcs0p")
+volume_db = -10.0
+
+[connection signal="pressed" from="VBoxContainer/Kel" to="." method="_on_kel_pressed"]

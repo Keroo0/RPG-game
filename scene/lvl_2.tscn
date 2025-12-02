@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=4 uid="uid://bai7yc13057ut"]
+[gd_scene load_steps=20 format=4 uid="uid://bai7yc13057ut"]
 
 [ext_resource type="Script" uid="uid://bpy7i63xqyied" path="res://script/lvl_2.gd" id="1_35ab5"]
 [ext_resource type="Texture2D" uid="uid://cmhp64pm63yfv" path="res://arts/sprites/tilesets/grass.png" id="1_n22ty"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bc8eakyri4qd2" path="res://scene/player.tscn" id="5_w5gxo"]
 [ext_resource type="PackedScene" uid="uid://cg3kexdt7ouco" path="res://scene/vampire.tscn" id="6_kdhrj"]
 [ext_resource type="PackedScene" uid="uid://dspfj4ej70ube" path="res://scene/status_game.tscn" id="7_2l7mg"]
+[ext_resource type="AudioStream" uid="uid://f4tiqhd03pnq" path="res://arts/audio/Level/lvl 2.mp3" id="9_i2m1t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kdhrj"]
 texture = ExtResource("1_n22ty")
@@ -238,3 +239,8 @@ position = Vector2(208, 240)
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="StatusGame" parent="CanvasLayer" instance=ExtResource("7_2l7mg")]
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_i2m1t")
+volume_db = -15.0
+autoplay = true

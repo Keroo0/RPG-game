@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dabti45nehyoa"
+path="res://.godot/imported/vampire death.mp3-5ccd964043105d563c0ded4091cdca47.mp3str"
+
+[deps]
+
+source_file="res://arts/audio/vampire/vampire death.mp3"
+dest_files=["res://.godot/imported/vampire death.mp3-5ccd964043105d563c0ded4091cdca47.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

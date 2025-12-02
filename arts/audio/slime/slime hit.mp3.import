@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b8i064laf66yy"
+path="res://.godot/imported/slime hit.mp3-365fc1b478b8e6580242d4739d67975d.mp3str"
+
+[deps]
+
+source_file="res://arts/audio/slime/slime hit.mp3"
+dest_files=["res://.godot/imported/slime hit.mp3-365fc1b478b8e6580242d4739d67975d.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

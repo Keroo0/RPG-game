@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://q5lw8i1us3no"]
+[gd_scene load_steps=4 format=3 uid="uid://q5lw8i1us3no"]
 
 [ext_resource type="FontFile" uid="uid://csv0otmk1yxo7" path="res://arts/font/Pixel Game.otf" id="1_grdc7"]
 [ext_resource type="Script" uid="uid://c23m0icyc88em" path="res://script/pause_menu.gd" id="1_me6vf"]
+[ext_resource type="AudioStream" uid="uid://dhwempgxbexyf" path="res://arts/audio/main menu/click.wav" id="3_cq4tv"]
 
 [node name="PauseMenu" type="CanvasLayer"]
 process_mode = 3
@@ -52,6 +53,11 @@ text = "Lanjutkan"
 [node name="MainMenu" type="Button" parent="MarginContainer/pause"]
 layout_mode = 2
 text = "Keluar"
+
+[node name="SfxButton" type="AudioStreamPlayer" parent="."]
+process_mode = 3
+stream = ExtResource("3_cq4tv")
+volume_db = -10.0
 
 [connection signal="pressed" from="MarginContainer/pause/Lanjut" to="." method="_on_lanjut_pressed"]
 [connection signal="pressed" from="MarginContainer/pause/MainMenu" to="." method="_on_main_menu_pressed"]

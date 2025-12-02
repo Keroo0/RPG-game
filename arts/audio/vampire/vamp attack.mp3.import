@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ceuepq6rkfnns"
+path="res://.godot/imported/vamp attack.mp3-9b74a6e73e72f738c1a26b511dc8d9fa.mp3str"
+
+[deps]
+
+source_file="res://arts/audio/vampire/vamp attack.mp3"
+dest_files=["res://.godot/imported/vamp attack.mp3-9b74a6e73e72f738c1a26b511dc8d9fa.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

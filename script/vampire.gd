@@ -16,6 +16,8 @@ extends Entity # <--- WARISI DARI ENTITY
 @onready var patrol_timer: Timer = $PatrolTimer
 @onready var health_bar = $EnemyHealthBar
 @onready var weapon_collider: CollisionShape2D = $AttackArea/CollisionShape2D
+@onready var sfx_attack: AudioStreamPlayer2D = $SfxAttack
+@onready var sfx_aggro: AudioStreamPlayer2D = $SfxAggro
 
 # --- STATE ---
 var player = null
@@ -23,6 +25,8 @@ var is_attacking: bool = false   # Sedang sibuk nyerang
 var is_patrol_walking: bool = false
 var facing_dir: String = "front"
 var patrol_direction: Vector2 = Vector2.DOWN
+var has_aggroed: bool = false
+var is_hurting: bool = false
 
 func _ready():
 	# 1. Matikan pedang saat lahir
@@ -52,6 +56,11 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta) # Entity Knockback
 	if is_dead: return
 	
+	if is_hurting:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return # Stop, jangan jalankan AI di bawahnya
+		
 	# JANGAN BERGERAK KALAU SEDANG MENYERANG (KUNCI ANIMASI)
 	if is_attacking:
 		velocity = Vector2.ZERO
@@ -74,6 +83,9 @@ func _physics_process(delta: float) -> void:
 		
 	# 2. NAMPAK? -> KEJAR
 	elif player and dist <= detect_range:
+		if not has_aggroed:
+			sfx_aggro.play()
+			has_aggroed = true # Tandai sudah teriak
 		var dir = (player.global_position - global_position).normalized()
 		velocity = dir * run_speed
 		update_facing_direction(dir)
@@ -82,6 +94,8 @@ func _physics_process(delta: float) -> void:
 		
 	# 3. AMAN? -> PATROLI
 	else:
+		if has_aggroed:
+			has_aggroed = false
 		process_patrol()
 
 # --- LOGIKA SERANGAN (SINKRONISASI ANIMASI) ---
@@ -95,7 +109,7 @@ func attack_sequence():
 	
 	# 1. Mainkan Animasi
 	anim.play("attack_" + facing_dir)
-	
+	sfx_attack.play()
 	# 2. Tunggu Windup (Misal frame ke-2 baru pukul)
 	# Kita pakai timer manual singkat agar pas dengan gerakan tangan
 	await get_tree().create_timer(0.3).timeout
@@ -165,7 +179,11 @@ func update_facing_direction(move_input: Vector2):
 func _play_hurt_anim(_attacker_pos):
 	# Vampir tangguh, kalau lagi nyerang gak bisa distun (Super Armor)
 	if is_attacking: return 
+	is_hurting = true
+	velocity = Vector2.ZERO # Stop mendadak
 	anim.play("hurt_" + facing_dir)
+	await get_tree().create_timer(0.4).timeout
+	is_hurting = false
 
 func _play_death_anim():
 	anim.play("die_" + facing_dir)

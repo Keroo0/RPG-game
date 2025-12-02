@@ -4,11 +4,13 @@ extends Node
 # Nilai ini tidak akan hilang saat pindah scene/level
 var max_health: int = 500
 var current_health: int = 500
+var coin : int = 0
 
 # --- SINYAL KOMUNIKASI ---
 # UI (HealthBar) akan mendengarkan sinyal ini agar update otomatis
 signal health_changed(new_value)
 signal player_died
+signal coins_changed(new_amount)
 
 func _ready():
 	# Inisialisasi awal saat game dibuka
@@ -16,8 +18,10 @@ func _ready():
 
 # --- FUNGSI RESET (Start Game Baru) ---
 func reset_data():
+	coin = 0
 	current_health = max_health
 	health_changed.emit(current_health)
+	coins_changed.emit(coin)
 	print("[GameManager] Data Reset: HP Full ", current_health)
 
 # --- FUNGSI REFILL (Sesuai permintaanmu: Darah penuh tiap level) ---
@@ -43,3 +47,8 @@ func increase_max_health(amount):
 	current_health += amount # Tambah darahnya juga
 	health_changed.emit(current_health)
 	print("[GameManager] Max Health Upgraded to: ", max_health)
+	
+func add_coin(amount):
+	coin += amount
+	coins_changed.emit(coin)
+	print("total coin =", coin)
